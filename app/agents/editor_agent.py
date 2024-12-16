@@ -1,24 +1,19 @@
-from datetime import datetime
-from typing import List
+from app.core.config import get_settings
 from pydantic_ai import Agent
-from ..core.models import Newsletter, AIArtNews, ArtistContext
+from pydantic_ai.models.openai import OpenAIModel
+from typing import List
+from ..core.models import AIArtNews, Newsletter, ArtistContext
 import os
+from datetime import datetime
 from ..core.config import get_settings
 
 settings = get_settings()
 
 class EditorAgent:
     def __init__(self):
-        self.agent = Agent(
-            'anthropic:claude-3-opus-20240229',
-            system_prompt="""You are an AI art newsletter editor. Your task is to:
-            1. Create engaging headlines that capture the day's key developments
-            2. Write clear, concise introductions that set the context
-            3. Organize news and insights in a logical flow
-            4. Conclude with meaningful takeaways
-            Focus on creating a cohesive narrative that provides value to readers interested in AI art.
-            """
-        )
+        
+        model = OpenAIModel('gpt-3.5-turbo', api_key=settings.OPENAI_API_KEY)
+        self.agent = Agent(model)
     
     async def create_newsletter(
         self,
@@ -26,35 +21,50 @@ class EditorAgent:
         artist_contexts: List[ArtistContext]
     ) -> Newsletter:
         """Create a well-structured newsletter from collected content."""
-        # Generate headline and introduction
-        content_summary = "\n".join([
-            f"- {news.title}: {news.summary[:100]}..."
-            for news in news_items[:3]
+        if not news_items:
+            return Newsletter(
+                date=datetime.now(),
+                headline="No news items available for today's newsletter.",
+                introduction="",
+                news_items=[],
+                artist_insights=[],
+                conclusion=""
+            )
+            
+        # Prepare news items for the newsletter
+        news_content = "\n\n".join([
+            f"Title: {item.title}\n"
+            f"Summary: {item.summary}\n"
+            f"Context: {item.context}\n"
+            f"URL: {item.url}"
+            for item in news_items
         ])
         
-        intro_result = await self.agent.arun(
-            f"""Based on these top news items:
-            {content_summary}
-            
-            Create an engaging headline and brief introduction for today's AI art newsletter.
-            Format as JSON with 'headline' and 'introduction' fields."""
-        )
+        prompt = f"""
+        Create a professional newsletter about AI art using these news items:
         
-        # Generate conclusion
-        conclusion_result = await self.agent.arun(
-            """Based on the news and insights collected, provide a brief conclusion 
-            that ties everything together and offers perspective on the current 
-            state of AI art."""
-        )
+        {news_content}
+        
+        Requirements:
+        1. Write an engaging introduction highlighting key themes
+        2. Organize news items logically with smooth transitions
+        3. Add relevant commentary and insights
+        4. Include a conclusion with future outlook
+        5. Format in Markdown for easy reading
+        
+        Make it informative yet engaging for artists and AI enthusiasts.
+        """
+        
+        result = await self.agent.run(prompt)
         
         # Create newsletter
         newsletter = Newsletter(
             date=datetime.now(),
-            headline=intro_result.data["headline"],
-            introduction=intro_result.data["introduction"],
+            headline=result.data.splitlines()[0],
+            introduction=result.data,
             news_items=news_items,
             artist_insights=artist_contexts,
-            conclusion=conclusion_result.data
+            conclusion=""
         )
         
         # Save to file

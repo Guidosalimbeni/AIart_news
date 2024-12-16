@@ -3,22 +3,27 @@ from datetime import datetime
 from typing import List, Optional
 
 
-class AIArtNews(BaseModel):
-    """Model for AI art news items."""
+class NewsItem(BaseModel):
+    """Model for news items."""
     title: str
     url: str
-    date: datetime
+    snippet: str
+
+
+class AIArtNews(NewsItem):
+    """Model for AI art news items."""
     summary: str
-    source: str
-    relevance_score: float
+    context: Optional[str] = None
+    relevance: float = 1.0
+    date: datetime = datetime.now()
 
 
 class ArtistContext(BaseModel):
     """Model for artist-specific context."""
-    topic: str
-    insights: str
-    relevance: float
-    source: str
+    title: str
+    insight: str
+    relevance: float = 1.0
+    source_url: Optional[str] = None
 
 
 class Newsletter(BaseModel):
@@ -28,7 +33,7 @@ class Newsletter(BaseModel):
     introduction: str
     news_items: List[AIArtNews]
     artist_insights: List[ArtistContext]
-    conclusion: Optional[str]
+    conclusion: str
     
     def to_markdown(self) -> str:
         """Convert the newsletter to markdown format."""
@@ -39,16 +44,15 @@ class Newsletter(BaseModel):
         md += "## Latest in AI Art\n\n"
         for news in self.news_items:
             md += f"### {news.title}\n"
-            md += f"*Source: [{news.source}]({news.url})*\n\n"
+            md += f"*Source: [{news.url}]({news.url})*\n\n"
             md += f"{news.summary}\n\n"
         
         md += "## Artist Insights & Context\n\n"
         for insight in self.artist_insights:
-            md += f"### {insight.topic}\n"
-            md += f"{insight.insights}\n"
-            md += f"*Source: {insight.source}*\n\n"
+            md += f"### {insight.title}\n"
+            md += f"{insight.insight}\n"
+            md += f"*Source: {insight.source_url}*\n\n"
         
-        if self.conclusion:
-            md += f"## Final Thoughts\n\n{self.conclusion}\n"
+        md += f"## Final Thoughts\n\n{self.conclusion}\n"
         
         return md

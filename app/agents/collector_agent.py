@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List
 from pydantic_ai import Agent
-from ..core.models import AIArtNews
+from pydantic_ai.models.openai import OpenAIModel
+from ..core.models import AIArtNews, NewsItem
 from ..core.config import get_settings
 from ..services.brave_service import search_news
 
@@ -9,58 +10,64 @@ settings = get_settings()
 
 class NewsCollectorAgent:
     def __init__(self):
-        self.agent = Agent(
-            'anthropic:claude-3-opus-20240229',
-            system_prompt="""You are an AI art news curator. Your task is to:
-            1. Analyze news articles about AI art
-            2. Extract key information and summarize it concisely
-            3. Rate the relevance of each article
-            4. Ensure summaries are informative and engaging
-            Focus on significant developments, trends, and impactful stories in the AI art space.
-            """
-        )
+        model = OpenAIModel('gpt-3.5-turbo', api_key=settings.OPENAI_API_KEY)
+        self.agent = Agent(model)
     
     async def collect_news(self) -> List[AIArtNews]:
         """Collect and process AI art news from the past day."""
-        # Calculate date range
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=settings.DAYS_LOOKBACK)
-        
         # Search for news using Brave API
-        raw_news = await search_news(
-            query="AI art artificial intelligence generative art",
-            start_date=start_date,
-            end_date=end_date,
-            max_results=settings.MAX_SEARCH_RESULTS
-        )
+        raw_news = await search_news("AI art", days=1)
+        
+        if not raw_news:
+            return []
         
         processed_news = []
         for news in raw_news:
             # Use the agent to analyze and summarize each news item
-            result = await self.agent.arun(
-                f"""Analyze this AI art news article:
-                Title: {news.title}
-                URL: {news.url}
-                Content: {news.snippet}
-                
-                Create a concise, informative summary focusing on the key developments 
-                and implications for the AI art community."""
-            )
+            prompt = f"""
+            Analyze this AI art news article:
+            Title: {news.title}
+            URL: {news.url}
+            Content: {news.snippet}
+            
+            Create a concise, informative summary focusing on the key developments 
+            and implications for the AI art community.
+            Rate the relevance of this article for the AI art community on a scale of 0.0 to 1.0.
+            
+            Format your response as:
+            Summary: [your summary]
+            Relevance: [score]
+            """
+            
+            result = await self.agent.run(prompt)
+            response_lines = result.data.split('\n')
+            
+            summary = ""
+            relevance = 1.0
+            
+            for line in response_lines:
+                if line.startswith("Summary:"):
+                    summary = line.replace("Summary:", "").strip()
+                elif line.startswith("Relevance:"):
+                    try:
+                        relevance = float(line.replace("Relevance:", "").strip())
+                    except ValueError:
+                        relevance = 1.0
             
             processed_news.append(
                 AIArtNews(
                     title=news.title,
                     url=news.url,
-                    date=news.published_date,
-                    summary=result.data,
-                    source=news.source,
-                    relevance_score=news.score
+                    snippet=news.snippet,
+                    summary=summary,
+                    relevance=relevance,
+                    date=datetime.now()
                 )
             )
         
-        # Sort by relevance and return top results
+        # Sort by relevance and return
         return sorted(
             processed_news,
-            key=lambda x: x.relevance_score,
+            key=lambda x: x.relevance,
             reverse=True
         )
