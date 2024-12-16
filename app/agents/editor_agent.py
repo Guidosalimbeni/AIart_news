@@ -12,7 +12,7 @@ settings = get_settings()
 class EditorAgent:
     def __init__(self):
         
-        model = OpenAIModel('gpt-3.5-turbo', api_key=settings.OPENAI_API_KEY)
+        model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
         self.agent = Agent(model)
     
     async def create_newsletter(

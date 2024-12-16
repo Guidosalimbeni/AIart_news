@@ -10,13 +10,13 @@ settings = get_settings()
 
 class NewsCollectorAgent:
     def __init__(self):
-        model = OpenAIModel('gpt-3.5-turbo', api_key=settings.OPENAI_API_KEY)
+        model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
         self.agent = Agent(model)
     
-    async def collect_news(self) -> List[AIArtNews]:
-        """Collect and process AI art news from the past day."""
+    async def collect_news(self, days: int = 1, limit: int = 5) -> List[AIArtNews]:
+        """Collect a limited number of news items and process AI art news from the past given days."""
         # Search for news using Brave API
-        raw_news = await search_news("AI art", days=1)
+        raw_news = await search_news("AI art", days=days, limit=limit)
         
         if not raw_news:
             return []
@@ -29,14 +29,22 @@ class NewsCollectorAgent:
             Title: {news.title}
             URL: {news.url}
             Content: {news.snippet}
-            
-            Create a concise, informative summary focusing on the key developments 
-            and implications for the AI art community.
-            Rate the relevance of this article for the AI art community on a scale of 0.0 to 1.0.
-            
-            Format your response as:
-            Summary: [your summary]
-            Relevance: [score]
+
+            Analyze the article focusing on:
+            - Specific AI artworks created and their concepts
+            - Artist names and their approaches to using AI
+            - Exhibition venues, residencies, or competitions
+            - Creative applications of AI tools/techniques
+            - Cultural impact and artistic significance
+
+            Create a concise summary highlighting these artistic and curatorial developments.
+            Rate the article's relevance for curators and AI artists on a scale of 0.0 to 1.0.
+
+            Format response as:
+            Artwork & Artists: [details of specific works and creators]
+            Venue/Context: [exhibition/residency/competition details]
+            AI Integration: [how AI was used creatively]
+            Relevance Score: [score]
             """
             
             result = await self.agent.run(prompt)

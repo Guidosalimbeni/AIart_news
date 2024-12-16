@@ -6,7 +6,7 @@ from ..core.models import NewsItem
 
 settings = get_settings()
 
-async def search_news(query: str = "AI art", days: int = 1) -> List[NewsItem]:
+async def search_news(query: str = "AI art", days: int = 1, limit: int = 5) -> List[NewsItem]:
     """
     Search for news using Brave API
     """
@@ -24,7 +24,8 @@ async def search_news(query: str = "AI art", days: int = 1) -> List[NewsItem]:
         "q": query,
         "freshness": "p1d" if days == 1 else f"p{days}d",
         "text_format": "raw",
-        "search_lang": "en"
+        "search_lang": "en",
+        "count": limit
     }
     
     try:
@@ -44,7 +45,7 @@ async def search_news(query: str = "AI art", days: int = 1) -> List[NewsItem]:
                     url=item["url"],
                     snippet=item["description"]
                 )
-                for item in data.get("results", [])
+                for item in data.get("results", [])[:limit]  # Ensure we don't exceed the limit
             ]
     except Exception as e:
         print(f"Error searching news: {str(e)}")
@@ -84,7 +85,7 @@ async def search_content(query: str = "AI art tutorials and resources", limit: i
                     url=item["url"],
                     snippet=item["description"]
                 )
-                for item in data.get("results", [])
+                for item in data.get("results", [])[:limit]  # Ensure we don't exceed the limit
             ]
     except Exception as e:
         print(f"Error searching content: {str(e)}")
