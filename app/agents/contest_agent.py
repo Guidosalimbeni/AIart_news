@@ -1,22 +1,22 @@
 from typing import List
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
-from ..core.models import ArtistContext, AIArtNews
+from ..core.models import ArtistContest, AIArtNews
 from ..services.brave_service import search_content
 from app.core.config import get_settings
 
 settings = get_settings()
 
-class ContextAgent:
+class ContestAgent:
     def __init__(self):
         model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
         self.agent = Agent(model)
     
-    async def gather_context(self) -> List[ArtistContext]:
+    async def gather_context(self) -> List[ArtistContest]:
         """Gather and analyze context about AI art for artists."""
         # Search for relevant content
         raw_content = await search_content(
-            query="AI art tools tutorials guides artists workflow",
+            query="AI art Contest and Exhibitions",
             limit=settings.MAX_SEARCH_RESULTS
         )
         

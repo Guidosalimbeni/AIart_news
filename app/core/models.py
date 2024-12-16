@@ -18,8 +18,8 @@ class AIArtNews(NewsItem):
     date: datetime = datetime.now()
 
 
-class ArtistContext(BaseModel):
-    """Model for artist-specific context."""
+class ArtistContest(BaseModel):
+    """Model for artist-specific contest."""
     title: str
     insight: str
     relevance: float = 1.0
@@ -32,7 +32,7 @@ class Newsletter(BaseModel):
     headline: str
     introduction: str
     news_items: List[AIArtNews]
-    artist_insights: List[ArtistContext]
+    artist_insights: List[ArtistContest]
     conclusion: str
     
     def to_markdown(self) -> str:

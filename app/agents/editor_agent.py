@@ -2,7 +2,7 @@ from app.core.config import get_settings
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from typing import List
-from ..core.models import AIArtNews, Newsletter, ArtistContext
+from ..core.models import AIArtNews, Newsletter, ArtistContest
 import os
 from datetime import datetime
 from ..core.config import get_settings
@@ -18,7 +18,7 @@ class EditorAgent:
     async def create_newsletter(
         self,
         news_items: List[AIArtNews],
-        artist_contexts: List[ArtistContext]
+        artist_contexts: List[ArtistContest]
     ) -> Newsletter:
         """Create a well-structured newsletter from collected content."""
         if not news_items:
@@ -46,11 +46,15 @@ class EditorAgent:
         {news_content}
         
         Requirements:
-        1. Write an engaging introduction highlighting key themes
+        1. Write a one sentence engaging introduction highlighting key themes
         2. Organize news items logically with smooth transitions
         3. Add relevant commentary and insights
-        4. Include a conclusion with future outlook
-        5. Format in Markdown for easy reading
+        4. Format in Markdown for easy reading
+        
+        Structure:
+        - Introduction (1 sentence)
+        - Latest in AI Art
+        
         
         Make it informative yet engaging for artists and AI enthusiasts.
         """

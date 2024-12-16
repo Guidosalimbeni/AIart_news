@@ -1,5 +1,5 @@
 from app.agents.collector_agent import NewsCollectorAgent
-from app.agents.context_agent import ContextAgent
+from app.agents.contest_agent import ContestAgent
 from app.agents.editor_agent import EditorAgent
 import asyncio
 from datetime import datetime
@@ -9,7 +9,7 @@ async def test_newsletter_generation():
     
     # Initialize agents
     collector = NewsCollectorAgent()
-    context_agent = ContextAgent()
+    context_agent = ContestAgent()
     editor = EditorAgent()
     
     try:
