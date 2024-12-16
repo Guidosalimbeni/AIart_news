@@ -1,8 +1,8 @@
 from app.core.config import get_settings
 from pydantic_ai import Agent
-import asyncio
+from pydantic_ai.models.openai import OpenAIModel
 
-async def test_environment():
+def test_environment():
     print("Testing environment setup...")
     
     # Test settings
@@ -12,18 +12,18 @@ async def test_environment():
     
     # Test Pydantic AI
     print("\n2. Testing Pydantic AI setup:")
-    agent = Agent(
-        'anthropic:claude-3-opus-20240229',
-        system_prompt='You are a helpful assistant.'
-    )
+    
+    # Initialize OpenAI model with API key from settings
+    model = OpenAIModel('gpt-3.5-turbo', api_key=settings.OPENAI_API_KEY)
+    agent = Agent(model)
     
     try:
-        result = await agent.arun('Say "Hello, World!"')
+        result = agent.run_sync('Say "Hello, World!"')
         print(f"Agent response: {result.data}")
-        print("\nEnvironment setup successful! ✅")
+        print("\nEnvironment setup successful! ")
     except Exception as e:
         print(f"Error testing agent: {str(e)}")
         print("\nPlease check your API keys and try again.")
 
 if __name__ == "__main__":
-    asyncio.run(test_environment())
+    test_environment()
