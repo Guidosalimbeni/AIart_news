@@ -23,9 +23,8 @@ class NewsCollectorAgent:
         
         processed_news = []
         for news in raw_news:
-            # Use the agent to analyze and summarize each news item
             prompt = f"""
-            Analyze this AI art news article:
+            Analyze this AI art news:
             Title: {news.title}
             URL: {news.url}
             Content: {news.snippet}
@@ -41,19 +40,18 @@ class NewsCollectorAgent:
             Rate the article's relevance for curators and AI artists on a scale of 0.0 to 1.0.
 
             Format response as:
-            Artwork & Artists: [details of specific works and creators]
-            Venue/Context: [exhibition/residency/competition details]
-            AI Integration: [how AI was used creatively]
-            Relevance Score: [score]
+            Summary: [your summary]
+            Relevance: [score]
             """
             
             result = await self.agent.run(prompt)
-            response_lines = result.data.split('\n')
             
+            # Parse the response
+            lines = result.data.split('\n')
             summary = ""
             relevance = 1.0
             
-            for line in response_lines:
+            for line in lines:
                 if line.startswith("Summary:"):
                     summary = line.replace("Summary:", "").strip()
                 elif line.startswith("Relevance:"):

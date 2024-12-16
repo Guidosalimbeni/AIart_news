@@ -2,7 +2,7 @@ from typing import List
 import httpx
 from datetime import datetime, timedelta
 from ..core.config import get_settings
-from ..core.models import NewsItem
+from ..core.models import NewsItem, ArtistContest
 
 settings = get_settings()
 
@@ -38,22 +38,24 @@ async def search_news(query: str = "AI art", days: int = 1, limit: int = 5) -> L
             )
             response.raise_for_status()
             data = response.json()
+            print(f"Debug: News API response status: {response.status_code}")
             
             return [
                 NewsItem(
                     title=item["title"],
                     url=item["url"],
-                    snippet=item["description"]
+                    snippet=item.get("description", "")
                 )
-                for item in data.get("results", [])[:limit]  # Ensure we don't exceed the limit
+                for item in data.get("results", [])[:limit]
             ]
     except Exception as e:
         print(f"Error searching news: {str(e)}")
         return []
 
-async def search_content(query: str = "AI art tutorials and resources", limit: int = 5) -> List[NewsItem]:
+async def search_content(query: str = "AI art exhibitions and contests", limit: int = 5) -> List[ArtistContest]:
     """
-    Search for general content using Brave API
+    Search for AI art contests and exhibitions using Brave API
+    Returns: List of ArtistContest objects
     """
     base_url = "https://api.search.brave.com/res/v1/web/search"
     headers = {
@@ -61,11 +63,14 @@ async def search_content(query: str = "AI art tutorials and resources", limit: i
         "X-Subscription-Token": settings.BRAVE_API_KEY
     }
     
+    print(f"Debug: Searching content with query: {query}")
+    
     params = {
-        "q": query,
+        "q": f"{query} current exhibition contest call for artists deadline",
         "text_format": "raw",
         "search_lang": "en",
-        "count": limit
+        "count": limit * 2,  # Request more results to filter
+        "freshness": "p90d"  # Look back 90 days
     }
     
     try:
@@ -78,15 +83,35 @@ async def search_content(query: str = "AI art tutorials and resources", limit: i
             )
             response.raise_for_status()
             data = response.json()
+            print(f"Debug: Content API response status: {response.status_code}")
+            print(f"Debug: Raw results count: {len(data.get('results', []))}")
             
-            return [
-                NewsItem(
-                    title=item["title"],
-                    url=item["url"],
-                    snippet=item["description"]
-                )
-                for item in data.get("results", [])[:limit]  # Ensure we don't exceed the limit
-            ]
+            # Filter and convert results directly to ArtistContest objects
+            results = []
+            keywords = ["exhibition", "contest", "competition", "call for", "submission", "deadline", "artists"]
+            
+            for item in data.get("results", []):
+                title = item["title"].lower()
+                description = item.get("description", "").lower()
+                
+                # Check if the result contains relevant keywords
+                if any(keyword in title or keyword in description for keyword in keywords):
+                    # Create ArtistContest object directly
+                    contest = ArtistContest(
+                        title=item["title"],
+                        insight=item.get("description", "") or title,  # Use description or fallback to title
+                        relevance=1.0 if any(k in title for k in keywords) else 0.7,  # Higher relevance if keyword in title
+                        source_url=item["url"]
+                    )
+                    results.append(contest)
+                    print(f"Debug: Found relevant contest: {item['title']}")
+                
+                if len(results) >= limit:
+                    break
+            
+            print(f"Debug: Filtered contests count: {len(results)}")
+            return results[:limit]
+            
     except Exception as e:
-        print(f"Error searching content: {str(e)}")
+        print(f"Error searching content: {str(e)}\nHeaders: {headers}\nParams: {params}")
         return []

@@ -1,9 +1,9 @@
-from typing import List
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
-from ..core.models import ArtistContest, AIArtNews
+from typing import List
+from ..core.models import ArtistContest
 from ..services.brave_service import search_content
-from app.core.config import get_settings
+from ..core.config import get_settings
 
 settings = get_settings()
 
@@ -13,89 +13,62 @@ class ContestAgent:
         self.agent = Agent(model)
     
     async def gather_context(self) -> List[ArtistContest]:
-        """Gather and analyze context about AI art for artists."""
-        # Search for relevant content
-        raw_content = await search_content(
-            query="AI art Contest and Exhibitions",
-            limit=settings.MAX_SEARCH_RESULTS
+        """Gather information about current AI art contests and exhibitions."""
+        print("\nDebug: Starting contest search...")
+        
+        # Search for contests and exhibitions
+        contests = await search_content(
+            query="AI art exhibition contest competition call for artists",
+            limit=5
         )
         
-        contexts = []
-        for content in raw_content:
-            # Use the agent to analyze and extract insights
+        print(f"Debug: Found {len(contests)} contests")
+        
+        if not contests:
+            print("Warning: No contest or exhibition information found")
+            # Return some example contests for testing
+            return [
+                ArtistContest(
+                    title="AI Art Gallery Open Call",
+                    insight="Virtual exhibition opportunity for AI artists. Submit your best AI-generated artworks.",
+                    relevance=1.0,
+                    source_url="https://example.com/ai-art-gallery"
+                ),
+                ArtistContest(
+                    title="Digital Dreams AI Art Contest",
+                    insight="Monthly online contest for AI-generated art. Theme: 'Future Visions'",
+                    relevance=0.9,
+                    source_url="https://example.com/digital-dreams"
+                )
+            ]
+        
+        enhanced_contests = []
+        for contest in contests:
+            print(f"\nDebug: Processing contest: {contest.title}")
+            
             prompt = f"""
-            Analyze this AI art resource:
-            Title: {content.title}
-            Content: {content.snippet}
+            Analyze this AI art opportunity:
+            Title: {contest.title}
+            Content: {contest.insight}
             
-            Extract key insights and practical tips for artists working with AI.
-            Rate the relevance for AI artists on a scale of 0.0 to 1.0.
+            Extract and summarize the key information about:
+            - Event type (exhibition/contest/residency)
+            - Important dates
+            - Location (physical/virtual)
+            - Requirements
+            - Prizes or benefits
             
-            Format your response as:
-            Insight: [your insight]
-            Relevance: [score]
+            Format the information in a clear, concise way that would be helpful for AI artists.
             """
             
             result = await self.agent.run(prompt)
-            response_lines = result.data.split('\n')
+            print(f"Debug: Got enhanced description")
             
-            insight = ""
-            relevance = 1.0
-            
-            for line in response_lines:
-                if line.startswith("Insight:"):
-                    insight = line.replace("Insight:", "").strip()
-                elif line.startswith("Relevance:"):
-                    try:
-                        relevance = float(line.replace("Relevance:", "").strip())
-                    except ValueError:
-                        relevance = 1.0
-            
-            contexts.append(
-                ArtistContext(
-                    topic=content.title,
-                    insights=insight,
-                    relevance=relevance,
-                    source=content.url
-                )
-            )
+            # Update the contest with enhanced insight
+            contest.insight = result.data
+            enhanced_contests.append(contest)
         
         # Sort by relevance
-        return sorted(
-            contexts,
-            key=lambda x: x.relevance,
-            reverse=True
-        )
-    
-    async def add_context(self, news_items: List[AIArtNews]) -> List[AIArtNews]:
-        """Add broader context and connections between different news items."""
-        if not news_items:
-            return []
-            
-        # Create a summary of all news items for context
-        news_summary = "\n".join([
-            f"- {item.title}: {item.summary}"
-            for item in news_items
-        ])
-        
-        prompt = f"""
-        Here are today's AI art news items:
-        {news_summary}
-        
-        For each news item, provide:
-        1. Historical context and background
-        2. Connections to other news items
-        3. Potential future implications
-        4. Relevant industry trends
-        
-        Format each analysis separately.
-        """
-        
-        result = await self.agent.run(prompt)
-        
-        # Parse and add context to each news item
-        context_blocks = result.data.split("\n\n")
-        for item, context in zip(news_items, context_blocks):
-            item.context = context.strip()
-        
-        return news_items
+        sorted_contests = sorted(enhanced_contests, key=lambda x: x.relevance, reverse=True)
+        print(f"\nDebug: Returning {len(sorted_contests)} enhanced contests")
+        return sorted_contests

@@ -1,84 +1,101 @@
-from app.core.config import get_settings
+from datetime import datetime
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from typing import List
 from ..core.models import AIArtNews, Newsletter, ArtistContest
 import os
-from datetime import datetime
 from ..core.config import get_settings
 
 settings = get_settings()
 
 class EditorAgent:
     def __init__(self):
-        
         model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
         self.agent = Agent(model)
+        
+        # Static newsletter information
+        self.static_info = {
+            "website": "https://www.yourwebsite.com",
+            "subscribe_link": "https://newsletter.yourwebsite.com/subscribe",
+            "social_links": {
+                "twitter": "https://twitter.com/youraccount",
+                "instagram": "https://instagram.com/youraccount"
+            },
+            "footer_text": "Thank you for reading! If you enjoyed this newsletter, please share it with your friends."
+        }
     
     async def create_newsletter(
         self,
         news_items: List[AIArtNews],
-        artist_contexts: List[ArtistContest]
+        artist_contests: List[ArtistContest]
     ) -> Newsletter:
-        """Create a well-structured newsletter from collected content."""
+        """Create a well-structured newsletter combining news and contest information."""
         if not news_items:
-            return Newsletter(
-                date=datetime.now(),
-                headline="No news items available for today's newsletter.",
-                introduction="",
-                news_items=[],
-                artist_insights=[],
-                conclusion=""
-            )
+            raise ValueError("No news items provided")
+        
+        current_date = datetime.now()
             
-        # Prepare news items for the newsletter
+        # Format news items into markdown
         news_content = "\n\n".join([
-            f"Title: {item.title}\n"
-            f"Summary: {item.summary}\n"
-            f"Context: {item.context}\n"
-            f"URL: {item.url}"
+            f"### {item.title}\n"
+            f"{item.summary}\n"
+            f"[Read more]({item.url})"
             for item in news_items
         ])
         
-        prompt = f"""
-        Create a professional newsletter about AI art using these news items:
+        # Format contest information into markdown
+        contest_content = "\n\n".join([
+            f"### {contest.title}\n"
+            f"{contest.insight}\n"
+            f"[Learn more]({contest.source_url})"
+            for contest in artist_contests
+        ])
         
+        # Generate a one-sentence introduction
+        prompt = f"""
+        Based on these AI art news items and contests, write ONE engaging sentence 
+        that captures the most exciting developments:
+        
+        News:
         {news_content}
         
-        Requirements:
-        1. Write a one sentence engaging introduction highlighting key themes
-        2. Organize news items logically with smooth transitions
-        3. Add relevant commentary and insights
-        4. Format in Markdown for easy reading
-        
-        Structure:
-        - Introduction (1 sentence)
-        - Latest in AI Art
-        
-        
-        Make it informative yet engaging for artists and AI enthusiasts.
+        Contests & Exhibitions:
+        {contest_content}
         """
         
-        result = await self.agent.run(prompt)
+        intro_result = await self.agent.run(prompt)
         
-        # Create newsletter
-        newsletter = Newsletter(
-            date=datetime.now(),
-            headline=result.data.splitlines()[0],
-            introduction=result.data,
+        # Assemble the newsletter in markdown format
+        newsletter_content = f"""
+# AI Art News - {current_date.strftime('%B %d, %Y')}
+
+{intro_result.data}
+
+## Latest in AI Art
+
+{news_content}
+
+## Contests & Exhibitions
+
+{contest_content}
+
+---
+
+## Stay Connected
+- Visit my website: [{self.static_info['website']}]({self.static_info['website']})
+- Follow me on [Twitter]({self.static_info['social_links']['twitter']}) and [Instagram]({self.static_info['social_links']['instagram']})
+- [Subscribe]({self.static_info['subscribe_link']}) to receive future newsletters
+
+{self.static_info['footer_text']}
+"""
+        
+        # Create and return the newsletter
+        return Newsletter(
+            date=current_date,  
+            headline=f"AI Art News - {current_date.strftime('%B %d, %Y')}",
+            introduction=intro_result.data,
             news_items=news_items,
-            artist_insights=artist_contexts,
-            conclusion=""
+            artist_insights=artist_contests,
+            conclusion=self.static_info['footer_text'],
+            content=newsletter_content
         )
-        
-        # Save to file
-        os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
-        output_path = os.path.join(
-            settings.OUTPUT_DIR,
-            f"newsletter_{newsletter.date.strftime('%Y%m%d')}.md"
-        )
-        
-        with open(output_path, "w") as f:
-            f.write(newsletter.to_markdown())
-        
-        return newsletter

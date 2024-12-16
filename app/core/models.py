@@ -4,55 +4,39 @@ from typing import List, Optional
 
 
 class NewsItem(BaseModel):
-    """Model for news items."""
+    """Model for a single news item from search results."""
     title: str
     url: str
     snippet: str
 
 
-class AIArtNews(NewsItem):
-    """Model for AI art news items."""
+class AIArtNews(BaseModel):
+    """Model for processed AI art news with analysis."""
+    title: str
+    url: str
     summary: str
-    context: Optional[str] = None
-    relevance: float = 1.0
+    relevance: float = 1.0  # Added back for sorting
     date: datetime = datetime.now()
 
 
 class ArtistContest(BaseModel):
-    """Model for artist-specific contest."""
+    """Model for artist contest and exhibition opportunities."""
     title: str
     insight: str
     relevance: float = 1.0
-    source_url: Optional[str] = None
+    source_url: str
 
 
 class Newsletter(BaseModel):
-    """Model for the final newsletter structure."""
+    """Model for the complete AI art newsletter."""
     date: datetime
     headline: str
     introduction: str
     news_items: List[AIArtNews]
     artist_insights: List[ArtistContest]
     conclusion: str
+    content: str  # The complete formatted markdown content
     
     def to_markdown(self) -> str:
-        """Convert the newsletter to markdown format."""
-        md = f"# AI Art Newsletter - {self.date.strftime('%Y-%m-%d')}\n\n"
-        md += f"## {self.headline}\n\n"
-        md += f"{self.introduction}\n\n"
-        
-        md += "## Latest in AI Art\n\n"
-        for news in self.news_items:
-            md += f"### {news.title}\n"
-            md += f"*Source: [{news.url}]({news.url})*\n\n"
-            md += f"{news.summary}\n\n"
-        
-        md += "## Artist Insights & Context\n\n"
-        for insight in self.artist_insights:
-            md += f"### {insight.title}\n"
-            md += f"{insight.insight}\n"
-            md += f"*Source: {insight.source_url}*\n\n"
-        
-        md += f"## Final Thoughts\n\n{self.conclusion}\n"
-        
-        return md
+        """Return the complete markdown content."""
+        return self.content
