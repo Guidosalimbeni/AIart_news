@@ -18,7 +18,7 @@ class ContestAgent:
         
         # Search for contests and exhibitions
         contests = await search_content(
-            query="AI art exhibition contest competition call for artists",
+            query="AI art exhibition contest competition",
             limit=5
         )
         
@@ -26,21 +26,7 @@ class ContestAgent:
         
         if not contests:
             print("Warning: No contest or exhibition information found")
-            # Return some example contests for testing
-            return [
-                ArtistContest(
-                    title="AI Art Gallery Open Call",
-                    insight="Virtual exhibition opportunity for AI artists. Submit your best AI-generated artworks.",
-                    relevance=1.0,
-                    source_url="https://example.com/ai-art-gallery"
-                ),
-                ArtistContest(
-                    title="Digital Dreams AI Art Contest",
-                    insight="Monthly online contest for AI-generated art. Theme: 'Future Visions'",
-                    relevance=0.9,
-                    source_url="https://example.com/digital-dreams"
-                )
-            ]
+            return []
         
         enhanced_contests = []
         for contest in contests:

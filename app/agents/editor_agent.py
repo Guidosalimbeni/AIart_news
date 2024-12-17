@@ -15,15 +15,15 @@ class EditorAgent:
         
         # Static newsletter information
         self.static_info = {
-            "website": "https://www.yourwebsite.com",
+            "website": "https://www.guidosalimbeni.it",
             "subscribe_link": "https://newsletter.yourwebsite.com/subscribe",
             "social_links": {
-                "twitter": "https://twitter.com/youraccount",
-                "instagram": "https://instagram.com/youraccount"
+                "twitter": "https://twitter.com/guidosalimbeni",
+                "instagram": "https://instagram.com/guidosalimbeni"
             },
             "footer_text": "Thank you for reading! If you enjoyed this newsletter, please share it with your friends."
         }
-    
+     
     async def create_newsletter(
         self,
         news_items: List[AIArtNews],

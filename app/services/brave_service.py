@@ -52,9 +52,9 @@ async def search_news(query: str = "AI art", days: int = 1, limit: int = 5) -> L
         print(f"Error searching news: {str(e)}")
         return []
 
-async def search_content(query: str = "AI art exhibitions and contests", limit: int = 5) -> List[ArtistContest]:
+async def search_content(query: str = "AI art", limit: int = 5) -> List[ArtistContest]:
     """
-    Search for AI art contests and exhibitions using Brave API
+    Search for AI art content using Brave API
     Returns: List of ArtistContest objects
     """
     base_url = "https://api.search.brave.com/res/v1/web/search"
@@ -63,55 +63,58 @@ async def search_content(query: str = "AI art exhibitions and contests", limit: 
         "X-Subscription-Token": settings.BRAVE_API_KEY
     }
     
-    print(f"Debug: Searching content with query: {query}")
+    print(f"\nDebug: Starting Brave API search")
+    print(f"Debug: Query: {query}")
     
     params = {
-        "q": f"{query} current exhibition contest call for artists deadline",
-        "text_format": "raw",
+        "q": query,
         "search_lang": "en",
-        "count": limit * 2,  # Request more results to filter
-        "freshness": "p90d"  # Look back 90 days
+        "count": 10  # Request more results initially
     }
     
     try:
         async with httpx.AsyncClient() as client:
+            print("Debug: Sending request to Brave API...")
             response = await client.get(
                 base_url,
                 headers=headers,
                 params=params,
-                timeout=30.0
+                timeout=100.0
             )
-            response.raise_for_status()
-            data = response.json()
-            print(f"Debug: Content API response status: {response.status_code}")
-            print(f"Debug: Raw results count: {len(data.get('results', []))}")
             
-            # Filter and convert results directly to ArtistContest objects
-            results = []
-            keywords = ["exhibition", "contest", "competition", "call for", "submission", "deadline", "artists"]
+            print(f"Debug: Response status: {response.status_code}")
             
-            for item in data.get("results", []):
-                title = item["title"].lower()
-                description = item.get("description", "").lower()
+            if response.status_code != 200:
+                print(f"Debug: Error response body: {response.text}")
+                return []
                 
-                # Check if the result contains relevant keywords
-                if any(keyword in title or keyword in description for keyword in keywords):
-                    # Create ArtistContest object directly
-                    contest = ArtistContest(
-                        title=item["title"],
-                        insight=item.get("description", "") or title,  # Use description or fallback to title
-                        relevance=1.0 if any(k in title for k in keywords) else 0.7,  # Higher relevance if keyword in title
-                        source_url=item["url"]
-                    )
-                    results.append(contest)
-                    print(f"Debug: Found relevant contest: {item['title']}")
+            try:
+                data = response.json()
+                web_results = data.get('web', {}).get('results', [])
+                print(f"Debug: Found {len(web_results)} web results")
                 
-                if len(results) >= limit:
-                    break
-            
-            print(f"Debug: Filtered contests count: {len(results)}")
-            return results[:limit]
-            
+                results = []
+                for item in web_results[:limit]:
+                    try:
+                        contest = ArtistContest(
+                            title=item.get('title', 'Untitled'),
+                            insight=item.get('description', '') or item.get('title', ''),
+                            relevance=0.8,  # Default relevance
+                            source_url=item.get('url', '')
+                        )
+                        results.append(contest)
+                        print(f"Debug: Added result: {contest.title}")
+                    except Exception as e:
+                        print(f"Debug: Error creating contest object: {str(e)}")
+                        continue
+                
+                return results
+                
+            except json.JSONDecodeError as e:
+                print(f"Debug: JSON decode error: {str(e)}")
+                print(f"Debug: Raw response: {response.text[:500]}...")
+                return []
+                
     except Exception as e:
-        print(f"Error searching content: {str(e)}\nHeaders: {headers}\nParams: {params}")
+        print(f"Debug: Request error: {str(e)}")
         return []
