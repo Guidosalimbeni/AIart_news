@@ -1,5 +1,6 @@
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.anthropic import AnthropicModel
 from typing import List
 from ..core.models import ArtistContest
 from ..services.brave_service import search_content
@@ -9,7 +10,7 @@ settings = get_settings()
 
 class ContestAgent:
     def __init__(self):
-        model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
+        model = AnthropicModel('claude-3-5-sonnet-latest', api_key=settings.ANTHROPIC_API_KEY)
         self.agent = Agent(model)
     
     async def gather_context(self) -> List[ArtistContest]:
@@ -44,7 +45,7 @@ class ContestAgent:
             - Requirements
             - Prizes or benefits
             
-            Format the information in a clear, concise way that would be helpful for AI artists.
+            Format the information in a clear, concise way that would be helpful for AI artists and curators.
             """
             
             result = await self.agent.run(prompt)

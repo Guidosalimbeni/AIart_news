@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.anthropic import AnthropicModel
 from ..core.models import AIArtNews, NewsItem
 from ..core.config import get_settings
 from ..services.brave_service import search_news
@@ -10,7 +11,7 @@ settings = get_settings()
 
 class NewsCollectorAgent:
     def __init__(self):
-        model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
+        model = AnthropicModel('claude-3-5-sonnet-latest', api_key=settings.ANTHROPIC_API_KEY)
         self.agent = Agent(model)
     
     async def collect_news(self, days: int = 1, limit: int = 5) -> List[AIArtNews]:

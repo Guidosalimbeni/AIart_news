@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.anthropic import AnthropicModel
 from typing import List
 from ..core.models import AIArtNews, Newsletter, ArtistContest
 import os
@@ -10,13 +11,13 @@ settings = get_settings()
 
 class EditorAgent:
     def __init__(self):
-        model = OpenAIModel('gpt-4o', api_key=settings.OPENAI_API_KEY)
+        model = AnthropicModel('claude-3-5-sonnet-latest', api_key=settings.ANTHROPIC_API_KEY)
         self.agent = Agent(model)
         
         # Static newsletter information
         self.static_info = {
             "website": "https://www.guidosalimbeni.it",
-            "subscribe_link": "https://newsletter.yourwebsite.com/subscribe",
+            "subscribe_link": "https://www.guidosalimbeni.it/blog.html",
             "social_links": {
                 "twitter": "https://twitter.com/guidosalimbeni",
                 "instagram": "https://instagram.com/guidosalimbeni"
@@ -53,8 +54,8 @@ class EditorAgent:
         
         # Generate a one-sentence introduction
         prompt = f"""
-        Based on these AI art news items and contests, write ONE engaging sentence 
-        that captures the most exciting developments:
+        Based on these AI art news items and contests, write ONE single sentence 
+        that captures the most exciting news:
         
         News:
         {news_content}

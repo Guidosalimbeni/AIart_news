@@ -3,6 +3,7 @@ import httpx
 from datetime import datetime, timedelta
 from ..core.config import get_settings
 from ..core.models import NewsItem, ArtistContest
+import json
 
 settings = get_settings()
 
@@ -69,7 +70,7 @@ async def search_content(query: str = "AI art", limit: int = 5) -> List[ArtistCo
     params = {
         "q": query,
         "search_lang": "en",
-        "count": 10  # Request more results initially
+        "count": 5  
     }
     
     try:
@@ -79,7 +80,7 @@ async def search_content(query: str = "AI art", limit: int = 5) -> List[ArtistCo
                 base_url,
                 headers=headers,
                 params=params,
-                timeout=100.0
+                timeout=30.0
             )
             
             print(f"Debug: Response status: {response.status_code}")
