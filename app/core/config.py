@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str
     BRAVE_API_KEY: str
     OPENAI_API_KEY: str
+    LINKEDIN_API_TOKEN: str
+    LINKEDIN_POSTBYCOMPANY_DATASET_ID: str
     
     # Output Configuration
     OUTPUT_DIR: str = "outputs"

@@ -1,6 +1,7 @@
 from app.agents.collector_agent import NewsCollectorAgent
 from app.agents.contest_agent import ContestAgent
 from app.agents.editor_agent import EditorAgent
+from app.agents.linkedin_agent import LinkedInCollector
 import asyncio
 from datetime import datetime
 import os
@@ -14,6 +15,7 @@ async def test_newsletter_generation():
     # Initialize agents
     collector = NewsCollectorAgent()
     contest_agent = ContestAgent()
+    linkedin_company_post_agent = LinkedInCollector(settings.LINKEDIN_POSTBYCOMPANY_DATASET_ID)
     editor = EditorAgent()
     
     try:
@@ -26,8 +28,17 @@ async def test_newsletter_generation():
         print("\n2. Gathering contest and exhibition information...")
         contest_items = await contest_agent.gather_context()
         print(f"Found {len(contest_items)} contests and exhibitions")
+
+        # 3. gather linkedin companies post
+        print("\n2. Gathering linkedin post companies...")
+        company_urls = [
+        "https://www.linkedin.com/company/midjourney/",
+        "https://www.linkedin.com/company/arselectronica/",
+        "https://www.linkedin.com/company/runwayml/"
+        ]
+        analyzed_posts = await linkedin_company_post_agent.get_linkedin_posts( company_urls, days = 2)
         
-        # 3. Create and save newsletter
+        # 4. Create and save newsletter
         print("\n3. Creating newsletter...")
         newsletter = await editor.create_newsletter(
             news_items=news_items,
