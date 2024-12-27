@@ -15,9 +15,15 @@ class AIArtNews(BaseModel):
     title: str
     url: str
     summary: str
-    relevance: float = 1.0  # Added back for sorting
+    relevance: float = 1.0 
     date: datetime = datetime.now()
 
+class AIArtistNews(BaseModel):
+    """Model for processed AI artist news with analysis."""
+    title: str
+    url: str
+    summary: str
+    
 
 class ArtistContest(BaseModel):
     """Model for artist contest and exhibition opportunities."""

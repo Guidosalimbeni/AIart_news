@@ -2,6 +2,7 @@ from app.agents.collector_agent import NewsCollectorAgent
 from app.agents.contest_agent import ContestAgent
 from app.agents.editor_agent import EditorAgent
 from app.agents.linkedin_agent import LinkedInCollector
+from app.agents.artist_editor_agent import ArtistEditorAgent
 import asyncio
 from datetime import datetime
 import os
@@ -16,6 +17,7 @@ async def test_newsletter_generation():
     collector = NewsCollectorAgent()
     contest_agent = ContestAgent()
     linkedin_company_post_agent = LinkedInCollector(settings.LINKEDIN_POSTBYCOMPANY_DATASET_ID)
+    editor_artist = ArtistEditorAgent()
     editor = EditorAgent()
     
     try:
@@ -40,12 +42,20 @@ async def test_newsletter_generation():
         linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=2)
         print(f"Found {len(linkedin_posts)} LinkedIn posts")
 
-        # 4. Create and save newsletter
-        print("\n4. Creating newsletter...")
+        # 4. Create the sub newsletter specific to artists news
+        print("\n4. Creating newsletter from AI artist news...")
+        artists = ['Refik Anadol', 'Sougwen Chung','Stephanie Dinkins', 'Jake Elwes', 'Libby Heaney','Mario Klingemann' ]
+
+        sub_newsletter_artists = await editor_artist.create_newsletter(artists)
+
+
+        # 5. Create and save newsletter
+        print("\n5. Creating newsletter...")
         newsletter = await editor.create_newsletter(
             news_items=news_items,
             artist_contests=contest_items,
-            linkedin_posts=linkedin_posts
+            linkedin_posts=linkedin_posts,
+            sub_newsletter_artists=sub_newsletter_artists
         )
         
         # Save the newsletter
