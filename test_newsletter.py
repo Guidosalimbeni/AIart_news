@@ -44,10 +44,27 @@ async def test_newsletter_generation():
 
         # 4. Create the sub newsletter specific to artists news
         print("\n4. Creating newsletter from AI artist news...")
-        artists = ['Refik Anadol', 'Sougwen Chung','Stephanie Dinkins', 'Jake Elwes', 'Libby Heaney','Mario Klingemann' ]
+        artists = ['Refik Anadol', 'Sougwen Chung','Stephanie Dinkins', 
+                   'Jake Elwes', 'Libby Heaney','Mario Klingemann',
+                    'Trevor Paglen', 'Anna Ridler', 'Annie Dorsen',
+                    'Caroline Sinders', 'Ellen Pearlman','Gene Kogan',
+                    'Mimi Onouha', 'Rachel Ginsberg', 'Tega Brain',
+                    'Cecilie Waagner Falkenstrøm','Karen Palmer',
+                    'Memo Akten',  'Scott Eaton',  'Wayne McGregor',
+                    'Alexander Reben', 'Lauren McCarthy', 'Ross Goodwin',
+                    'Nadine Lessio', 'Joy Buolamwini', 'Sofia Crespo',
+                    'Tom White', 'Simon Colton' ]
 
         sub_newsletter_artists = await editor_artist.create_newsletter(artists)
 
+# if __name__ == "__main__":
+#     agent = XArtNewsCollectorAgent()
+#     profiles = [
+#         "https://x.com/ai_artist_1",
+#         "https://x.com/ai_gallery",
+#     ]
+#     result = await agent.collect_x_art_news(profiles)
+#     print(result)
 
         # 5. Create and save newsletter
         print("\n5. Creating newsletter...")

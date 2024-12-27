@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     LINKEDIN_API_TOKEN: str
     LINKEDIN_POSTBYCOMPANY_DATASET_ID: str
+    TWITTER_API_TOKEN: str
+    TWITTER_DATASET_ID: str
     
     # Output Configuration
     OUTPUT_DIR: str = "outputs"
