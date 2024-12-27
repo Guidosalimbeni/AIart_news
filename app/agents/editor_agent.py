@@ -28,7 +28,8 @@ class EditorAgent:
     async def create_newsletter(
         self,
         news_items: List[AIArtNews],
-        artist_contests: List[ArtistContest]
+        artist_contests: List[ArtistContest],
+        linkedin_posts: List[dict]
     ) -> Newsletter:
         """Create a well-structured newsletter combining news and contest information."""
         if not news_items:
@@ -51,34 +52,47 @@ class EditorAgent:
             f"[Learn more]({contest.source_url})"
             for contest in artist_contests
         ])
+
+        # Format LinkedIn posts into markdown
+        linkedin_content = "\n\n".join([
+            f"### {post['title']}\n"
+            f"{post['analysis']}\n"
+            f"[Read more]({post['url']})"
+            for post in linkedin_posts
+        ])
         
-        # Generate a one-sentence introduction
+        # Generate newsletter
         prompt = f"""
-        Based on these AI art news items and contests, write ONE single sentence 
-        that captures the most exciting news:
+        Based on the following information, write an extensive AI art newsletter,
+        avoid repeated information when there is duplicated content,
+        include dates when available
+        include link and make them cliccable
+        avoid any conclusion or final massage in the generated newsletter
+        use a markdown style
+        :
+
+        Newsletter Date: {current_date.strftime('%B %d, %Y')}
         
         News:
         {news_content}
         
         Contests & Exhibitions:
         {contest_content}
+
+        LinkedIn Posts:
+        {linkedin_content}
         """
         
-        intro_result = await self.agent.run(prompt)
+        newsletter_prompted = await self.agent.run(prompt)
         
         # Assemble the newsletter in markdown format
         newsletter_content = f"""
 # AI Art News - {current_date.strftime('%B %d, %Y')}
 
-{intro_result.data}
 
-## Latest in AI Art
+{newsletter_prompted.data}
 
-{news_content}
 
-## Contests & Exhibitions
-
-{contest_content}
 
 ---
 
@@ -94,7 +108,7 @@ class EditorAgent:
         return Newsletter(
             date=current_date,  
             headline=f"AI Art News - {current_date.strftime('%B %d, %Y')}",
-            introduction=intro_result.data,
+            
             news_items=news_items,
             artist_insights=artist_contests,
             conclusion=self.static_info['footer_text'],

@@ -38,14 +38,7 @@ class ContestAgent:
             Title: {contest.title}
             Content: {contest.insight}
             
-            Extract and summarize the key information about:
-            - Event type (exhibition/contest/residency)
-            - Important dates
-            - Location (physical/virtual)
-            - Requirements
-            - Prizes or benefits
-            
-            Format the information in a clear, concise way that would be helpful for AI artists and curators.
+            Extract and summarize the key information and format the information in a clear, concise way that can be helpful for AI artists and curators.
             """
             
             result = await self.agent.run(prompt)

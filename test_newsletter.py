@@ -29,20 +29,23 @@ async def test_newsletter_generation():
         contest_items = await contest_agent.gather_context()
         print(f"Found {len(contest_items)} contests and exhibitions")
 
-        # 3. gather linkedin companies post
-        print("\n2. Gathering linkedin post companies...")
+        # 3. Gather LinkedIn company posts
+        print("\n3. Gathering LinkedIn posts from companies...")
         company_urls = [
-        "https://www.linkedin.com/company/midjourney/",
-        "https://www.linkedin.com/company/arselectronica/",
-        "https://www.linkedin.com/company/runwayml/"
+            "https://www.linkedin.com/company/midjourney/",
+            "https://www.linkedin.com/company/arselectronica/",
+            "https://www.linkedin.com/company/runwayml/",
+            "https://www.linkedin.com/company/the-ai-art-magazine/"
         ]
-        analyzed_posts = await linkedin_company_post_agent.get_linkedin_posts( company_urls, days = 2)
-        
+        linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=2)
+        print(f"Found {len(linkedin_posts)} LinkedIn posts")
+
         # 4. Create and save newsletter
-        print("\n3. Creating newsletter...")
+        print("\n4. Creating newsletter...")
         newsletter = await editor.create_newsletter(
             news_items=news_items,
-            artist_contests=contest_items
+            artist_contests=contest_items,
+            linkedin_posts=linkedin_posts
         )
         
         # Save the newsletter

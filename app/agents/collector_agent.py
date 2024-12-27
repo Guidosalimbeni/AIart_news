@@ -30,19 +30,17 @@ class NewsCollectorAgent:
             URL: {news.url}
             Content: {news.snippet}
 
-            Analyze the article focusing on:
+            Analyze the news focusing on, if available, on
             - Specific AI artworks created and their concepts
             - Artist names and their approaches to using AI
-            - Exhibition venues, residencies, or competitions
-            - Creative applications of AI tools/techniques
-            - Cultural impact and artistic significance
+            - the news content itself
+            
 
-            Create a concise summary highlighting these artistic and curatorial developments.
-            Rate the article's relevance for curators and AI artists on a scale of 0.0 to 1.0.
-
+            Create a concise summary highlighting the artistic and curatorial developments.
+            
             Format response as:
             Summary: [your summary]
-            Relevance: [score]
+            
             """
             
             result = await self.agent.run(prompt)

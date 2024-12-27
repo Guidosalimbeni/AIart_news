@@ -31,7 +31,7 @@ class Newsletter(BaseModel):
     """Model for the complete AI art newsletter."""
     date: datetime
     headline: str
-    introduction: str
+    
     news_items: List[AIArtNews]
     artist_insights: List[ArtistContest]
     conclusion: str
