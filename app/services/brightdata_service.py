@@ -53,7 +53,7 @@ def get_recent_posts(dataset_id, company_urls, days):
 
 
 
-def getsnapshot(snapshot_id, max_retries=30):  # 5 min max wait
+def getsnapshot(snapshot_id, max_retries=90):  # 15 min max wait
     api_token = settings.LINKEDIN_API_TOKEN 
     headers = {"Authorization": f"Bearer {api_token}"}
     snapshot_url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}?format=json"

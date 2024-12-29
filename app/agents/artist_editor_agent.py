@@ -36,13 +36,12 @@ class ArtistEditorAgent:
         Create an AI art newsletter using this content. Follow these requirements:
         
         - Use clean markdown formatting with proper spacing
-        - Use level-1 heading (# ) for the newsletter title
         - Use level-2 headings (## ) for artist names
-        - Include dates in italics when available
         - Make all links clickable
         - Organize content by artist, removing any duplicate information
         - Use proper paragraph spacing (double line breaks between sections)
         - Do not include any conclusions or final messages
+        - write something for each artist unless there is no news 
         
         Content:
         {artists_news}

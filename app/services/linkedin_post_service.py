@@ -9,17 +9,17 @@ settings = get_settings()
 
 def get_recent_posts(dataset_id, profile_urls, days=5):
     """
-    Fetch recent posts from X (Twitter) profiles using Brightdata API.
+    Fetch recent posts from LinkedIn profiles using Brightdata API.
     
     Args:
-        dataset_id (str): The Brightdata dataset ID for X/Twitter
-        profile_urls (list): List of X profile URLs to fetch
+        dataset_id (str): The Brightdata dataset ID for LinkedIn
+        profile_urls (list): List of LinkedIn profile URLs to fetch
         days (int): Number of days to look back (default: 5)
     
     Returns:
-        dict: Response data from the API
+        dict: Response data from the API containing snapshot_id
     """
-    api_token = settings.TWITTER_API_TOKEN
+    api_token = settings.LINKEDIN_API_TOKEN
     url = "https://api.brightdata.com/datasets/v3/trigger"
     
     # Calculate the date range
@@ -68,18 +68,18 @@ def get_recent_posts(dataset_id, profile_urls, days=5):
         print("Response text:", response.text)
         return None
 
-def get_snapshot(snapshot_id, max_retries=60):  # 5 min max wait
+def get_snapshot(snapshot_id, max_retries=90):  # 15 min max wait
     """
-    Retrieve and process the snapshot data, extracting only required fields.
+    Retrieve and process the snapshot data from LinkedIn.
     
     Args:
         snapshot_id (str): The snapshot ID to retrieve
         max_retries (int): Maximum number of retry attempts
     
     Returns:
-        list: Processed posts with only description, url, and biography fields
+        list: Processed posts with key LinkedIn fields
     """
-    api_token = settings.TWITTER_API_TOKEN
+    api_token = settings.LINKEDIN_API_TOKEN
     headers = {"Authorization": f"Bearer {api_token}"}
     snapshot_url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}?format=json"
     
@@ -90,15 +90,29 @@ def get_snapshot(snapshot_id, max_retries=60):  # 5 min max wait
             # Parse the JSON response
             posts = json.loads(snapshot_response.text)
             
-            # Extract only the required fields
-            processed_posts = [
-                {
-                    "description": post.get("description"),
-                    "url": post.get("url"),
-                    "biography": post.get("biography")
+            # Process each post to extract relevant LinkedIn fields
+            processed_posts = []
+            for post in posts:
+                processed_post = {
+                    "post_id": post.get("id"),
+                    "user_id": post.get("user_id"),
+                    "profile_url": post.get("use_url"),
+                    "title": post.get("title"),
+                    "headline": post.get("headline"),
+                    "post_text": post.get("post_text"),
+                    "date_posted": post.get("date_posted"),
+                    "hashtags": post.get("hashtags", []),
+                    "embedded_links": post.get("embedded_links", []),
+                    "images": post.get("images", []),
+                    "videos": post.get("videos"),
+                    "num_likes": post.get("num_likes", 0),
+                    "num_comments": post.get("num_comments", 0),
+                    "user_followers": post.get("user_followers", 0),
+                    "user_posts": post.get("user_posts", 0),
+                    "tagged_companies": post.get("tagged_companies", []),
+                    "tagged_people": post.get("tagged_people", [])
                 }
-                for post in posts
-            ]
+                processed_posts.append(processed_post)
             
             return processed_posts
             
@@ -109,3 +123,19 @@ def get_snapshot(snapshot_id, max_retries=60):  # 5 min max wait
             raise Exception(f"Failed to get snapshot: {snapshot_response.status_code}")
     
     raise TimeoutError("Max retries reached waiting for snapshot")
+
+# # Example usage:
+# if __name__ == "__main__":
+#     # Example profile URLs
+#     profile_urls = [
+#         "https://www.linkedin.com/in/example1/",
+#         "https://www.linkedin.com/in/example2/"
+#     ]
+    
+#     # First, trigger the data collection
+#     response = get_recent_posts("your_dataset_id", profile_urls)
+    
+#     if response and "snapshot_id" in response:
+#         # Then fetch and process the snapshot
+#         posts = get_snapshot(response["snapshot_id"])
+#         print(json.dumps(posts, indent=2))

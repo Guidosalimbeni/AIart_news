@@ -30,7 +30,9 @@ class EditorAgent:
         news_items: List[AIArtNews],
         artist_contests: List[ArtistContest],
         linkedin_posts: List[dict],
-        sub_newsletter_artists:str
+        sub_newsletter_artists:str,
+        result_x_news:str,
+        result_linkedin_news:str
     ) -> Newsletter:
         """Create a well-structured newsletter combining news and contest information."""
         if not news_items:
@@ -95,6 +97,10 @@ class EditorAgent:
 
 
 {sub_newsletter_artists}
+
+{result_x_news}
+
+{result_linkedin_news}
 
 ---
 

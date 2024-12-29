@@ -21,7 +21,7 @@ class XArtNewsCollectorAgent:
         self.agent = Agent(model)
         self.dataset_id = settings.TWITTER_DATASET_ID
     
-    async def collect_x_art_news(self, profile_urls: List[str], days: int = 5) -> str:
+    async def collect_x_art_news(self, profile_urls: List[str], days: int = 3) -> str:
         """
         Collect and summarize AI art related posts from X profiles
         
@@ -110,12 +110,3 @@ class XArtNewsCollectorAgent:
         
         return markdown.strip()
 
-# Example usage:
-# if __name__ == "__main__":
-#     agent = XArtNewsCollectorAgent()
-#     profiles = [
-#         "https://x.com/ai_artist_1",
-#         "https://x.com/ai_gallery",
-#     ]
-#     result = await agent.collect_x_art_news(profiles)
-#     print(result)

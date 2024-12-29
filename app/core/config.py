@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     LINKEDIN_POSTBYCOMPANY_DATASET_ID: str
     TWITTER_API_TOKEN: str
     TWITTER_DATASET_ID: str
+    LINKEDIN_DATASET_ID: str
+    LINKEDIN_EMAIL: str
+    LINKEDIN_PASSWORD: str
     
     # Output Configuration
     OUTPUT_DIR: str = "outputs"

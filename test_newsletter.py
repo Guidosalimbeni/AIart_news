@@ -3,6 +3,8 @@ from app.agents.contest_agent import ContestAgent
 from app.agents.editor_agent import EditorAgent
 from app.agents.linkedin_agent import LinkedInCollector
 from app.agents.artist_editor_agent import ArtistEditorAgent
+from app.agents.x_agent import XArtNewsCollectorAgent
+from app.agents.linkedin_post_agent import LinkedInPostCollectorAgent
 import asyncio
 from datetime import datetime
 import os
@@ -19,6 +21,8 @@ async def test_newsletter_generation():
     linkedin_company_post_agent = LinkedInCollector(settings.LINKEDIN_POSTBYCOMPANY_DATASET_ID)
     editor_artist = ArtistEditorAgent()
     editor = EditorAgent()
+    x_agent = XArtNewsCollectorAgent()
+    linkedin_profile_post_agent = LinkedInPostCollectorAgent()
     
     try:
         # 1. Collect AI art news (limit to 5 items)
@@ -34,13 +38,17 @@ async def test_newsletter_generation():
         # 3. Gather LinkedIn company posts
         print("\n3. Gathering LinkedIn posts from companies...")
         company_urls = [
-            "https://www.linkedin.com/company/midjourney/",
+            # "https://www.linkedin.com/company/midjourney/",
             "https://www.linkedin.com/company/arselectronica/",
-            "https://www.linkedin.com/company/runwayml/",
+            # "https://www.linkedin.com/company/runwayml/",
             "https://www.linkedin.com/company/the-ai-art-magazine/"
         ]
-        linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=2)
-        print(f"Found {len(linkedin_posts)} LinkedIn posts")
+        try:
+            linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=5)
+            print(f"Found {len(linkedin_posts)} LinkedIn posts")
+        except:
+            linkedin_posts = []
+
 
         # 4. Create the sub newsletter specific to artists news
         print("\n4. Creating newsletter from AI artist news...")
@@ -57,22 +65,46 @@ async def test_newsletter_generation():
 
         sub_newsletter_artists = await editor_artist.create_newsletter(artists)
 
-# if __name__ == "__main__":
-#     agent = XArtNewsCollectorAgent()
-#     profiles = [
-#         "https://x.com/ai_artist_1",
-#         "https://x.com/ai_gallery",
-#     ]
-#     result = await agent.collect_x_art_news(profiles)
-#     print(result)
+        # 5 x-twitter news
+        print("\n5. Creating newsletter from twitter profile post news...")
 
-        # 5. Create and save newsletter
-        print("\n5. Creating newsletter...")
+        # profiles = [
+        #     "https://x.com/elluba",
+        #     "https://x.com/SimonGColton",
+        #     "https://x.com/lauramherman_"
+        # ]
+        # days = 20
+        # result_x_news = await x_agent.collect_x_art_news(profiles,days)
+        # print (result_x_news)
+        result_x_news = " "
+        print ('skipped as return dead pages')
+
+        # 6 linkedin post news by profile
+        # print("\n6. Creating newsletter from linkedin profile post news...")
+
+        # profile_urls = [
+        #     "https://www.linkedin.com/in/lubaelliott/",
+        #     "https://www.linkedin.com/in/lauraherman-/",
+        #     "https://www.linkedin.com/in/william-latham-757326/"
+        # ]
+        # days = 60
+        # try:
+        #     result_linkedin_news = await linkedin_profile_post_agent.collect_linkedin_posts(profile_urls,days)
+        #     print (result_linkedin_news)
+        # except:
+        #     result_linkedin_news = " "
+        print ("Linkedin post by profile not used as no data retrieving")
+        result_linkedin_news = " "
+
+        # 7. Create and save newsletter
+        print("\n7. Creating newsletter...")
         newsletter = await editor.create_newsletter(
             news_items=news_items,
             artist_contests=contest_items,
             linkedin_posts=linkedin_posts,
-            sub_newsletter_artists=sub_newsletter_artists
+            sub_newsletter_artists=sub_newsletter_artists,
+            result_x_news=result_x_news,
+            result_linkedin_news=result_linkedin_news
         )
         
         # Save the newsletter
