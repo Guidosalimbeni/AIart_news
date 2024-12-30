@@ -31,8 +31,12 @@ def get_recent_posts(dataset_id, profile_urls, days=5):
     end_date_str = end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z")
     
     # Construct the data payload
+    # data = [
+    #     {"url": profile_url, "start_date": start_date_str, "end_date": end_date_str}
+    #     for profile_url in profile_urls
+    # ]
     data = [
-        {"url": profile_url, "start_date": start_date_str, "end_date": end_date_str}
+        {"url": profile_url}
         for profile_url in profile_urls
     ]
     

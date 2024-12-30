@@ -57,7 +57,7 @@ class LinkedInPostCollectorAgent:
             
             Format the response as:
             Include: [Yes/No]
-            Summary: [your concise summary of the post]
+            Summary: [your concise summary of the post and include any urls and make them cliccable and include any available dates ]
             """
             
             result = await self.agent.run(prompt)
@@ -97,7 +97,7 @@ class LinkedInPostCollectorAgent:
         for post in posts:
             if post.headline:
                 markdown += f"### {post.headline}\n"
-            markdown += f"*Profile: {post.profile_url}*\n\n"
+            # markdown += f"*Profile: {post.profile_url}*\n\n"
             markdown += f"{post.post_text}\n\n"
             markdown += "---\n\n"
         

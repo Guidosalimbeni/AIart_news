@@ -61,7 +61,7 @@ async def test_newsletter_generation():
                     'Memo Akten',  'Scott Eaton',  'Wayne McGregor',
                     'Alexander Reben', 'Lauren McCarthy', 'Ross Goodwin',
                     'Nadine Lessio', 'Joy Buolamwini', 'Sofia Crespo',
-                    'Tom White', 'Simon Colton' ]
+                    'Tom White', 'Simon Colton', 'William Latham' ]
 
         sub_newsletter_artists = await editor_artist.create_newsletter(artists)
 
@@ -80,21 +80,21 @@ async def test_newsletter_generation():
         print ('skipped as return dead pages')
 
         # 6 linkedin post news by profile
-        # print("\n6. Creating newsletter from linkedin profile post news...")
+        print("\n6. Creating newsletter from linkedin profile post news...")
 
-        # profile_urls = [
-        #     "https://www.linkedin.com/in/lubaelliott/",
-        #     "https://www.linkedin.com/in/lauraherman-/",
-        #     "https://www.linkedin.com/in/william-latham-757326/"
-        # ]
-        # days = 60
-        # try:
-        #     result_linkedin_news = await linkedin_profile_post_agent.collect_linkedin_posts(profile_urls,days)
-        #     print (result_linkedin_news)
-        # except:
-        #     result_linkedin_news = " "
-        print ("Linkedin post by profile not used as no data retrieving")
-        result_linkedin_news = " "
+        profile_urls = [
+            "https://www.linkedin.com/in/lubaelliott/",
+            "https://www.linkedin.com/in/lauraherman-/",
+            # "https://www.linkedin.com/in/william-latham-757326/"
+        ]
+        days = 60
+        try:
+            result_linkedin_news = await linkedin_profile_post_agent.collect_linkedin_posts(profile_urls,days)
+            print (result_linkedin_news)
+        except:
+            result_linkedin_news = " "
+        # print ("Linkedin post by profile not used as no data retrieving")
+        # result_linkedin_news = " "
 
         # 7. Create and save newsletter
         print("\n7. Creating newsletter...")
