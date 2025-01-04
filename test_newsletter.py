@@ -41,6 +41,7 @@ async def test_newsletter_generation():
             # "https://www.linkedin.com/company/midjourney/",
             "https://www.linkedin.com/company/arselectronica/",
             # "https://www.linkedin.com/company/runwayml/",
+            "https://www.linkedin.com/showcase/somabotics-creatively-embodying-ai/",
             "https://www.linkedin.com/company/the-ai-art-magazine/"
         ]
         try:
