@@ -2,6 +2,18 @@ import requests
 import json
 from datetime import datetime
 
+from app.services.arxiv_service import get_recent_papers, format_paper_details
+
+# Get recent AI Creativity papers
+# papers = get_recent_papers()
+
+# Or with custom query and date range
+papers = get_recent_papers(query="AI Artists", days=7)
+
+# Print formatted details
+for paper in papers:
+    print(format_paper_details(paper))
+
 def fetch_x_data(api_token):
     # API endpoint
     url = "https://api.brightdata.com/datasets/v3/trigger"
@@ -45,7 +57,7 @@ def fetch_x_data(api_token):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-if __name__ == "__main__":
-    # Replace with your actual API token
-    api_token = "f83094bc85523d4142e39946c337dbf22e724d5f89b91cf20c65bc9f7e21638a"
-    fetch_x_data(api_token)
+# if __name__ == "__main__":
+#     # Replace with your actual API token
+#     api_token = "f83094bc85523d4142e39946c337dbf22e724d5f89b91cf20c65bc9f7e21638a"
+#     fetch_x_data(api_token)

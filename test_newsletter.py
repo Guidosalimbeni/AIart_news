@@ -5,6 +5,7 @@ from app.agents.linkedin_agent import LinkedInCollector
 from app.agents.artist_editor_agent import ArtistEditorAgent
 from app.agents.x_agent import XArtNewsCollectorAgent
 from app.agents.linkedin_post_agent import LinkedInPostCollectorAgent
+from app.agents.arxvic_agent import ArxvicCollectorAgent
 import asyncio
 from datetime import datetime
 import os
@@ -23,6 +24,7 @@ async def test_newsletter_generation():
     editor = EditorAgent()
     x_agent = XArtNewsCollectorAgent()
     linkedin_profile_post_agent = LinkedInPostCollectorAgent()
+    arxvicCollectorAgent = ArxvicCollectorAgent()
     
     try:
         # 1. Collect AI art news (limit to 5 items)
@@ -97,6 +99,10 @@ async def test_newsletter_generation():
         # print ("Linkedin post by profile not used as no data retrieving")
         # result_linkedin_news = " "
 
+        # 7. arxvic preprints
+        print ("\n7. Getting recent preprints")
+        subPreprints_newsletter = await arxvicCollectorAgent.collect_Arxvic_preprints()
+
         # 7. Create and save newsletter
         print("\n7. Creating newsletter...")
         newsletter = await editor.create_newsletter(
@@ -105,7 +111,8 @@ async def test_newsletter_generation():
             linkedin_posts=linkedin_posts,
             sub_newsletter_artists=sub_newsletter_artists,
             result_x_news=result_x_news,
-            result_linkedin_news=result_linkedin_news
+            result_linkedin_news=result_linkedin_news,
+            subPreprints_newsletter = subPreprints_newsletter
         )
         
         # Save the newsletter

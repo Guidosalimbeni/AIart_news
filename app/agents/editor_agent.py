@@ -32,7 +32,8 @@ class EditorAgent:
         linkedin_posts: List[dict],
         sub_newsletter_artists:str,
         result_x_news:str,
-        result_linkedin_news:str
+        result_linkedin_news:str,
+        subPreprints_newsletter: str
     ) -> Newsletter:
         """Create a well-structured newsletter combining news and contest information."""
         if not news_items:
@@ -101,6 +102,8 @@ class EditorAgent:
 {result_x_news}
 
 {result_linkedin_news}
+
+{subPreprints_newsletter}
 
 ---
 
