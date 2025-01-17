@@ -23,11 +23,11 @@ class ArxvicCollectorAgent:
         self.agent = Agent(model)
         
     
-    async def collect_Arxvic_preprints(self, days= 7, max_results=30) -> str:
+    async def collect_Arxvic_preprints(self, days= 30, max_results=10) -> str:
         """
         Collect and summarize AI art ppreprints
         """
-        papers = get_recent_papers(query="AI Artists", days=days, max_results=max_results)
+        papers = get_recent_papers(query="AI creativity", days=days, max_results=max_results)
         
         
         if len (papers) < 1:
@@ -36,12 +36,12 @@ class ArxvicCollectorAgent:
         # Process each preprint through the AI agent
         for paper in papers:
             prompt = f"""
-            Analyze this preprint about AI art and AI artists:
+            Analyze this preprint about AI creativity or Artistic Applications of AI:
             Preprint Title: {paper.get('title', '')}
             Preprint abstract: {paper.get('abstract', '')}
             Author information: {", ".join(paper.get("authors", ''))}
             
-            If this preprint is about AI art, AI artists, or AI art technology:
+           
             1. Identify the key points about AI art developments, techniques, or artist work
             2. Note any specific artworks or projects mentioned
             3. Extract any relevant technical details about AI art tools or methods
@@ -49,7 +49,7 @@ class ArxvicCollectorAgent:
             If the preprint is not about AI art, respond with "Not relevant".
             
             Format the response as:
-            Relevant: [Yes/No]
+            
             title: {paper.get('title', '')} [the title of the preprint]
             Author information: {", ".join(paper.get("authors", ''))}
             Published: {paper.get("published_date", '')}
@@ -63,12 +63,12 @@ class ArxvicCollectorAgent:
             # Parse the AI response
             lines = result.data.split('\n')
             is_relevant = False
-            summary = ""
+            summary = " "
             
             for line in lines:
                 if line.startswith("Relevant:"):
                     is_relevant = "yes" in line.lower()
-                elif line.startswith("Summary:"):
+                if line.startswith("Summary:"):
                     summary = line.replace("Summary:", "").strip()
    
             processed_preprints = []
@@ -90,8 +90,8 @@ class ArxvicCollectorAgent:
         """
         Format the processed posts into a markdown string
         """
-        if not papers:
-            return "No relevant AI art updates found on Preprints."
+        # if len(papers) < 1 :
+        #     return "No relevant AI art updates found on Preprints."
             
         markdown = "## Latest AI Art Preprints \n\n"
         
