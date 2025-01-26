@@ -46,7 +46,8 @@ class ArxvicCollectorAgent:
             2. Note any specific artworks or projects mentioned
             3. Extract any relevant technical details about AI art tools or methods
             
-            If the preprint is not about AI art, respond with "Not relevant".
+            If the preprint is not about AI art, respond with Relevant: no
+            If the preprint is about AI art or AI artworks or AI for creativity, respond with Relevant: yes
             
             Format the response as:
             
@@ -55,6 +56,7 @@ class ArxvicCollectorAgent:
             Published: {paper.get("published_date", '')}
             Summary: [your concise summary focusing on AI art aspects]
             url: {paper.get('url', '')} [report the url as provided]
+            Relevant: [yes or no]
             
             """
             

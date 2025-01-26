@@ -47,7 +47,7 @@ async def test_newsletter_generation():
             "https://www.linkedin.com/company/the-ai-art-magazine/"
         ]
         try:
-            linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=5)
+            linkedin_posts = await linkedin_company_post_agent.get_linkedin_posts(company_urls, days=2)
             print(f"Found {len(linkedin_posts)} LinkedIn posts")
         except:
             linkedin_posts = []
@@ -90,7 +90,7 @@ async def test_newsletter_generation():
             "https://www.linkedin.com/in/lauraherman-/",
             # "https://www.linkedin.com/in/william-latham-757326/"
         ]
-        days = 60
+        days = 6
         try:
             result_linkedin_news = await linkedin_profile_post_agent.collect_linkedin_posts(profile_urls,days)
             print (result_linkedin_news)
